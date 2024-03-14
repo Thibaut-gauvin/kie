@@ -1,0 +1,48 @@
+---
+before:
+  hooks:
+  - go mod tidy
+builds:
+- main: .
+  # Custom ldflags.
+  # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'
+  ldflags:
+  - -s -w
+  - -X main.version={{.Version}}
+  - -X main.commit={{.Commit}}
+  - -X main.date={{.CommitDate}}
+  - -X main.builtBy=goreleaser
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - arm64
+  - amd64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-dev"
+release:
+  mode: replace
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - '^Merge pull request'
+  groups:
+  - title: New features
+    regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+    order: 0
+  - title: Bug fixes
+    regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+    order: 1
+  - title: Dependency upgrades
+    regexp: '.*?chore\(deps\):.*$'
+    order: 2
+  - title: Other changes
+    order: 999
