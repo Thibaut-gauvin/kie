@@ -41,3 +41,12 @@ test: ## Run tests
         sed 's/PAUSE/$(BLUE)PAUSE$(RESET)/g' | \
         sed 's/PASS/$(GREEN)PASS$(RESET)/g' | \
         sed 's/FAIL/$(RED)FAIL$(RESET)/g'
+
+##
+## ----------------------
+## Development
+## ----------------------
+##
+
+start: ## Start project
+	go run ./cmd/kubernetes-image-exporter
