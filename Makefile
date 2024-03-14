@@ -18,10 +18,13 @@ artifact: ## Generate binary in dist folder
 ## ----------------------
 ##
 
-qa: lint test ## Run all QA process
+qa: lint lint.yaml test ## Run all QA process
 
 lint: ## Lint source code
 	@golangci-lint run -v
+
+lint.yaml: ## Lint yaml file
+	@yamllint .
 
 PKG := "./..."
 RUN := ".*"

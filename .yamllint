@@ -1,0 +1,20 @@
+---
+extends: default
+
+ignore: |
+  dist/
+
+rules:
+  comments:
+    require-starting-space: true
+    ignore-shebangs: true
+    min-spaces-from-content: 1
+  comments-indentation:
+    level: error
+  indentation:
+    indent-sequences: false
+    spaces: 2
+    check-multi-line-strings: false
+  line-length:
+    max: 160
+    allow-non-breakable-words: true
