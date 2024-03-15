@@ -3,9 +3,11 @@ package main
 import (
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/Thibaut-gauvin/kie/internal/logger"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
@@ -31,6 +33,7 @@ func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
+// init initialize Cobra root command.
 func init() {
 	cobra.OnInitialize(initConfig, initLogLevel)
 
@@ -43,6 +46,7 @@ func initConfig() {
 	viper.SetDefault("log_level", defaultLogLevel)
 }
 
+// initLogLevel parse log-level from cmd flag, instantiate slog logger & use it as default logger.
 func initLogLevel() {
 	_ = viper.BindPFlag("log_level", rootCmd.PersistentFlags().Lookup("log-level"))
 	logLevel := viper.GetString("log_level")
@@ -54,4 +58,21 @@ func initLogLevel() {
 
 	internalLogger := logger.NewLogger(os.Stdout, &slog.HandlerOptions{Level: logLvl})
 	slog.SetDefault(internalLogger)
+}
+
+// hydrateOptsFromViper copies all the viper values into our config struct.
+// The mapping between viper identifiers and struct field names
+// is ensured by `mapstructure` struct tags.
+func hydrateOptsFromViper(opts interface{}) {
+	_ = viper.Unmarshal(opts)
+}
+
+// bindPFlagsSnakeCase binds the flags with viper values. The identifier of the viper value
+// is the name of the flag with dashes replaced by underscores. This is required so we can
+// retrieve values from viper with the same behaviour with config coming from files
+// (my_config: "value") or from flags (--my-config=value).
+func bindPFlagsSnakeCase(flags *pflag.FlagSet) {
+	flags.VisitAll(func(flag *pflag.Flag) {
+		_ = viper.BindPFlag(strings.ReplaceAll(flag.Name, "-", "_"), flag)
+	})
 }
