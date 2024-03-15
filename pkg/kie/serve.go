@@ -14,6 +14,7 @@ import (
 	"github.com/Thibaut-gauvin/kie/internal/logger"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type ServeOpts struct {
@@ -29,10 +30,7 @@ func StartServer(opts ServeOpts) error {
 	router.HandleFunc("/readiness", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	router.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		logger.Infof("incoming %s request: %s", r.Method, r.Header)
-		w.WriteHeader(http.StatusOK)
-	})
+	router.Handle("/metrics", promhttp.Handler())
 
 	timeoutDuration := 15 * time.Second
 	srv := &http.Server{
