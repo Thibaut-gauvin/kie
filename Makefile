@@ -49,4 +49,4 @@ test: ## Run tests
 ##
 
 start: ## Start project
-	go run ./cmd/kubernetes-image-exporter
+	go run ./cmd/kubernetes-image-exporter serve -l debug

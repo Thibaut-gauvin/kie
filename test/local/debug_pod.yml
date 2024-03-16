@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debugpod
+  namespace: default
+spec:
+  containers:
+  - name: debug
+    image: bash:4.3
+    command: ["/bin/sh", "-c", "--"]
+    args: ["while true; do sleep 30; done;"]
+  serviceAccountName: "kie"
+
+# kubectl apply -f debug_resources.yml
+# kubectl apply -f debug_pod.yml
+# make artifact
+# kubectl cp ./dist/kie_linux_amd64_v1/kie debugpod:/tmp/kie
+# kubectl exec -it debugpod -- bash -c "./tmp/kie serve -l debug"
+# kubectl delete pod debugpod --grace-period=5
