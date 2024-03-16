@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/Thibaut-gauvin/kie/internal/logger"
 	"github.com/Thibaut-gauvin/kie/pkg/kie"
 	"github.com/spf13/cobra"
@@ -30,5 +33,20 @@ func init() {
 func doServe(opts kie.ServeOpts) error {
 	logger.Debugf("%+v", opts)
 
+	if err := validateListenPort(opts.ListenPort); err != nil {
+		return err
+	}
+
 	return kie.StartServer(opts)
+}
+
+func validateListenPort(listenPort string) error {
+	portNumber, err := strconv.Atoi(listenPort)
+	if err != nil {
+		return fmt.Errorf("%s is not a valid port number", listenPort)
+	}
+	if portNumber < 1 || portNumber > 65535 {
+		return fmt.Errorf("%s is not a valid port number", listenPort)
+	}
+	return nil
 }
