@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	internalHandlers "github.com/Thibaut-gauvin/kie/internal/handlers"
 	"github.com/Thibaut-gauvin/kie/internal/k8s"
 	"github.com/Thibaut-gauvin/kie/internal/logger"
 	"github.com/go-co-op/gocron/v2"
@@ -61,6 +62,9 @@ func StartKie(opts ServeOpts) error {
 		return err
 	}
 
+	internalHandlers.UpdateReady(true)
+	internalHandlers.UpdateHealthy(true)
+
 	// Graceful shutdown, inspired by https://github.com/gorilla/mux#graceful-shutdown
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM)
@@ -79,8 +83,8 @@ func StartKie(opts ServeOpts) error {
 // getHTTPServer initialize a new router and declare our app routes then return a http.Server instance.
 func getHTTPServer(listenPort string) *http.Server {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
-	router.HandleFunc("/readiness", func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	router.HandleFunc("/readiness", internalHandlers.ReadyCheckEndpoint)
+	router.HandleFunc("/health", internalHandlers.HealthCheckEndpoint)
 	router.Handle("/metrics", promhttp.Handler())
 
 	timeoutDuration := 15 * time.Second
