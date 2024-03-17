@@ -4,6 +4,7 @@ extends: default
 ignore: |
   dist/
   test/
+  tmp/
 
 rules:
   comments:

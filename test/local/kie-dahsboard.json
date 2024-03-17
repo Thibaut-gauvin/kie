@@ -51,7 +51,7 @@
             "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
+            "pointSize": 3,
             "scaleDistribution": {
               "type": "linear"
             },
@@ -93,7 +93,7 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
         "tooltip": {
@@ -109,7 +109,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by (name) (rate(kie_cluster_images_total{name=~\"$image\"}[$__rate_interval]))",
+          "expr": "sum by (name, tag, digest) (kie_cluster_images_running{name=~\"$image\"})",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -142,7 +142,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(kie_cluster_images_total, name)",
+        "definition": "label_values(kie_cluster_images_running, name)",
         "description": "The image name",
         "hide": 0,
         "includeAll": true,
@@ -152,7 +152,7 @@
         "options": [],
         "query": {
           "qryType": 5,
-          "query": "label_values(kie_cluster_images_total, name)",
+          "query": "label_values(kie_cluster_images_running, name)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
