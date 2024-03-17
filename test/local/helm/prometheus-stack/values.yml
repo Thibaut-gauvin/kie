@@ -1,0 +1,93 @@
+.prometheus_common_label: &common_label
+  prometheus: main
+
+commonLabels:
+  platform: monitoring
+  <<: *common_label
+
+global:
+  rbac:
+    create: true
+    pspEnabled: false
+
+# Grafana sub-chart configuration
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 30080
+  serviceMonitor:
+    enabled: true
+
+kubeEtcd:
+  service:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+
+coreDns:
+  enabled: false
+
+kubeProxy:
+  enabled: false
+
+# Kube State Metrics sub-chart configuration
+kubeStateMetrics:
+  enabled: true
+kube-state-metrics:
+  customLabels:
+    <<: *common_label
+  rbac:
+    create: true
+  prometheus:
+    monitor:
+      enabled: true
+      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+      interval: 30s
+      scheme: https
+      scrapeTimeout: 30s
+      tlsConfig:
+        insecureSkipVerify: true
+
+# Prometheus config
+prometheus:
+  enabled: true
+  prometheusSpec:
+    nodeSelector:
+      kubernetes.io/os: linux
+    podMonitorNamespaceSelector: {}
+    podMonitorSelector:
+      matchLabels:
+        <<: *common_label
+    replicas: 1
+    ruleNamespaceSelector: {}
+    ruleSelector:
+      matchLabels:
+        <<: *common_label
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector:
+      matchLabels:
+        <<: *common_label
+    probeNamespaceSelector: {}
+    probeSelector:
+      matchLabels:
+        <<: *common_label
+  service:
+    type: NodePort
+    nodePort: 30090
+  serviceMonitor:
+    interval: 30s
+
+# Prometheus Operator config
+prometheusOperator:
+  enabled: true
+  admissionWebhooks:
+    enabled: false
+  kubeletService:
+    enabled: true
+    namespace: kube-system
+    name: "kubelet"
+  serviceMonitor:
+    interval: 15s
+  tls:
+    enabled: false

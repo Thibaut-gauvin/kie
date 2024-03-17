@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kie
+  name: kie
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: kie
+  template:
+    metadata:
+      labels:
+        app: kie
+    spec:
+      serviceAccountName: "kie"
+      containers:
+      - name: nginx
+        image: kie:dev
+        command: ["/usr/bin/dumb-init", "--"]
+        args: ["/kie", "serve"]
+        resources:
+          requests:
+            cpu: 64m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+        env:
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        ports:
+        - containerPort: 9145
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: metrics
+          failureThreshold: 3
+          successThreshold: 1
+          periodSeconds: 30
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: metrics
+          failureThreshold: 3
+          successThreshold: 1
+          periodSeconds: 30
+          timeoutSeconds: 5
