@@ -1,0 +1,23 @@
+{{- if and .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "kie.fullname" . }}
+  namespace: {{ include "kie.namespace" . }}
+  labels:
+    {{- include "kie.labels" . | nindent 4 }}
+    {{- with .Values.serviceMonitor.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+  - path: /metrics
+    port: metrics
+    interval: 30s
+    scrapeTimeout: 15s
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      {{- include "kie.selectorLabels" . | nindent 6 }}
+{{- end }}

@@ -18,13 +18,16 @@ artifact: ## Generate binary in dist folder
 ## ----------------------
 ##
 
-qa: lint lint.yaml test ## Run all QA process
+qa: lint lint.yaml lint.chart test ## Run all QA process
 
 lint: ## Lint source code
 	@golangci-lint run -v
 
 lint.yaml: ## Lint yaml file
 	@yamllint .
+
+lint.chart: ## Lint Helm chart
+	ct lint --charts=./charts/kubernetes-image-exporter/
 
 PKG := "./..."
 RUN := ".*"
@@ -73,5 +76,8 @@ kind.delete: ## Delete Kind dev cluster
 app.deploy: ## Deploy app on Kind dev cluster
 	docker build -t kie:dev .
 	kind load docker-image kie:dev --name dev
-	kubectl apply -f test/local/debug_resources.yml
-	kubectl apply -f test/local/kie_deployment.yml
+	helm upgrade -i \
+		kie ./charts/kubernetes-image-exporter \
+		--values test/local/helm/kie_local/value.yml \
+		--debug \
+		--wait

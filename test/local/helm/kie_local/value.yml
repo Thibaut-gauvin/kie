@@ -1,0 +1,11 @@
+image:
+  repository: "kie"
+  tag: dev
+
+service:
+  type: NodePort
+  nodePort: 30045
+
+serviceMonitor:
+  additionalLabels:
+    prometheus: main

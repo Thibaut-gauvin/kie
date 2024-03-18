@@ -2,6 +2,7 @@
 extends: default
 
 ignore: |
+  charts/kubernetes-image-exporter/templates/
   dist/
   test/
   tmp/

@@ -1,0 +1,12 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+  $ helm ls
+  $ helm status {{ .Release.Name }}
+
+For testing, you can expose kie service to host by running these commands:
+  $ kubectl -n {{ include "kie.namespace" . }} port-forward svc/{{ include "kie.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+
+And browse http://127.0.0.1:{{ .Values.service.port }}/metrics

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "kie.fullname" . }}-test-connection"
+  namespace: {{ include "kie.namespace" . }}
+  labels:
+    {{- include "kie.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: wget
+    image: curlimages/curl:8.6.0
+    command: ['curl']
+    args: ['http://{{ include "kie.fullname" . }}.{{ include "kie.namespace" . }}.svc.cluster.local.:{{ .Values.service.port }}/metrics']
+  restartPolicy: Never

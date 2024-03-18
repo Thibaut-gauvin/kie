@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kie.fullname" . }}
+  namespace: {{ include "kie.namespace" . }}
+  labels:
+    {{- include "kie.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kie.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "kie.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "kie.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/usr/bin/dumb-init", "--"]
+        args:
+        - "/kie"
+        - "serve"
+        ports:
+        - name: metrics
+          containerPort: {{ .Values.service.port }}
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: metrics
+          failureThreshold: 3
+          successThreshold: 1
+          periodSeconds: 30
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: metrics
+          failureThreshold: 3
+          successThreshold: 1
+          periodSeconds: 30
+          timeoutSeconds: 5
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
+        env:
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
