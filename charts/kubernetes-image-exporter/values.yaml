@@ -40,22 +40,17 @@ securityContext:
   runAsUser: 1000
 
 service:
+  enabled: true
   type: ClusterIP
   port: 9145
+  # Only used when "service.type: NodePort"
   nodePort: ""
 
 serviceMonitor:
-  enabled: true
-  additionalLabels:
-    prometheus: main
+  enabled: false
+  additionalLabels: {}
 
-# resources: {}
-resources:
-  requests:
-    cpu: 64m
-    memory: 32Mi
-  limits:
-    memory: 64Mi
+resources: {}
 
 nodeSelector: {}
 
