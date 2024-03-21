@@ -1,4 +1,5 @@
-.idea
+/.idea
 /dist
 /coverage.output
+/test/local/kubeconfig.yml
 /tmp

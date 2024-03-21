@@ -51,17 +51,22 @@ test: ## Run tests
 ## ----------------------
 ##
 
+export KUBECONFIG := test/local/kubeconfig.yml
+export HELM_CONFIG_HOME := test/local/helm
+
 start: ## Start project locally
 	go run ./cmd/kubernetes-image-exporter serve -l debug
 
 kind.create: ## Create Kind dev cluster
 	kind create cluster --config=.kind.yaml
 	kind get clusters
+	kubectl cluster-info
+	kubectl config get-contexts
+	kubectl get node -o wide
 
 kind.provision: ## Setup Kind dev cluster (install prometheus-stack with Helm)
-	HELM_CONFIG_HOME="test/local/helm" \
-	helm upgrade \
-		--install \
+	helm repo update && \
+	helm upgrade -i \
 		prometheus-stack prometheus-community/kube-prometheus-stack \
 		--version 57.0.3 \
 		--create-namespace \

@@ -3,9 +3,18 @@ image:
   tag: dev
 
 service:
+  enabled: true
   type: NodePort
   nodePort: 30045
 
 serviceMonitor:
+  enabled: true
   additionalLabels:
     prometheus: main
+
+resources:
+  requests:
+    cpu: 64m
+    memory: 32Mi
+  limits:
+    memory: 64Mi
