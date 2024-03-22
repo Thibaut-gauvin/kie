@@ -1,0 +1,26 @@
+---
+name: Lint (Helm)
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - ".github/workflows/lint.helm.yml"
+    - "charts/**"
+
+jobs:
+  chart_testing:
+    name: Chart testing
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+    - uses: azure/setup-helm@b7246b12e77f7134dc2d460a3d5bad15bbe29390 # v4.1.0
+    - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+      with:
+        python-version: '3.10'
+        check-latest: true
+    - uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
+    - name: Run chart-testing (lint)
+      run: |
+        ct lint --target-branch ${{ github.event.pull_request.base.ref }}
