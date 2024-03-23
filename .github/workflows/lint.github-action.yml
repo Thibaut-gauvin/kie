@@ -6,6 +6,8 @@ on: # yamllint disable-line rule:truthy
     paths:
     - ".github/workflows/lint.github-action.yml"
     - ".github/workflows/**"
+  push:
+    branches: [main]
 
 jobs:
   github_action_lint:

@@ -6,6 +6,8 @@ on: # yamllint disable-line rule:truthy
     paths:
     - ".github/workflows/lint.yaml.yml"
     - "**.ya?ml"
+  push:
+    branches: [main]
 
 jobs:
   yamllint:
