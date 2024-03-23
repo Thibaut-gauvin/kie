@@ -23,16 +23,20 @@ qa: lint test ## Run all QA process
 lint: lint.go lint.yaml lint.hadolint lint.chart ## Run all linters
 
 lint.go: ## Lint go source code
-	@golangci-lint run -v
+	golangci-lint run -v
+	@echo ""
 
 lint.yaml: ## Lint yaml file
-	@yamllint .
+	yamllint .
+	@echo ""
 
 lint.hadolint: ## Lint dockerfiles
 	hadolint -- Dockerfile
+	@echo ""
 
 lint.chart: ## Lint Helm chart
 	ct lint --charts=./charts/kubernetes-image-exporter/
+	@echo ""
 
 PKG := "./..."
 RUN := ".*"
@@ -42,13 +46,14 @@ BLUE := $(shell tput setaf 4)
 RESET := $(shell tput sgr0)
 
 .PHONY: test
-test: ## Run tests
+test: ## Run Go tests
 	@go test -v -race -failfast -coverprofile coverage.output -run $(RUN) $(PKG) | \
         sed 's/RUN/$(BLUE)RUN$(RESET)/g' | \
         sed 's/CONT/$(BLUE)CONT$(RESET)/g' | \
         sed 's/PAUSE/$(BLUE)PAUSE$(RESET)/g' | \
         sed 's/PASS/$(GREEN)PASS$(RESET)/g' | \
         sed 's/FAIL/$(RED)FAIL$(RESET)/g'
+	@echo ""
 
 ##
 ## ----------------------
@@ -59,18 +64,23 @@ test: ## Run tests
 export KUBECONFIG := test/local/kubeconfig.yml
 export HELM_CONFIG_HOME := test/local/helm
 
-start: ## Start project locally
+start: ## Start project locally (go run ...)
 	go run ./cmd/kubernetes-image-exporter serve -l debug -k test/local/kubeconfig.yml
 
 kind.create: ## Create Kind dev cluster
 	kind create cluster --config=.kind.yaml
+	@echo ""
 	kind get clusters
 	kubectl cluster-info
 	kubectl config get-contexts
 	kubectl get node -o wide
 
+kind.delete: ## Delete Kind dev cluster
+	kind delete cluster --name dev
+
 kind.provision: ## Setup Kind dev cluster (install prometheus-stack with Helm)
-	helm repo update && \
+	helm repo update
+	@echo ""
 	helm upgrade -i \
 		prometheus-stack prometheus-community/kube-prometheus-stack \
 		--version 57.0.3 \
@@ -80,20 +90,25 @@ kind.provision: ## Setup Kind dev cluster (install prometheus-stack with Helm)
 		--debug \
 		--wait
 
-kind.delete: ## Delete Kind dev cluster
-	kind delete cluster --name dev
-
-app.deploy: ## Deploy app on Kind dev cluster
+app.build:
 	docker build -t kie:dev .
+	@echo ""
+#	trivy image --format spdx-json --output kie.spdx.json kie:dev
+#	trivy image --format cyclonedx --output kie.cyclonedx.json kie:dev
+#	trivy image --output kie.trivy.json kie:dev
+
+app.deploy: app.build ## Deploy app on Kind dev cluster
 	kind load docker-image kie:dev --name dev
+	@echo ""
 	helm upgrade -i \
 		kie ./charts/kubernetes-image-exporter \
 		--values test/local/helm/kie_local/value.yml \
 		--debug \
 		--wait
 
-app.build:
-	docker build -t kie:dev .
-	trivy image --format spdx-json --output kie.spdx.json kie:dev
-	trivy image --format cyclonedx --output kie.cyclonedx.json kie:dev
-	trivy image --output kie.trivy.json kie:dev
+app.test: app.build ## Install & test Helm chart using Kind dev cluster
+	kind load docker-image kie:dev --name dev
+	@echo ""
+	ct install \
+		--all \
+		--helm-extra-set-args '--set=image.tag=dev'
