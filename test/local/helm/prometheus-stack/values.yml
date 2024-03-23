@@ -19,26 +19,12 @@ grafana:
   serviceMonitor:
     enabled: true
 
-kubeEtcd:
-  service:
-    enabled: false
-  serviceMonitor:
-    enabled: false
-
-coreDns:
-  enabled: false
-
-kubeProxy:
-  enabled: false
-
 # Kube State Metrics sub-chart configuration
 kubeStateMetrics:
   enabled: true
 kube-state-metrics:
   customLabels:
     <<: *common_label
-  rbac:
-    create: true
   prometheus:
     monitor:
       enabled: true

@@ -91,10 +91,14 @@
       "id": 1,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
           "placement": "right",
-          "showLegend": true
+          "showLegend": true,
+          "sortBy": "Last",
+          "sortDesc": true
         },
         "tooltip": {
           "mode": "single",
@@ -109,7 +113,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by (name, tag, digest) (kie_cluster_images_running{name=~\"$image\"})",
+          "expr": "sum (kie_cluster_images_running{name=~\".*$image.*\"}) by (name)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": false,
@@ -128,38 +132,25 @@
   "templating": {
     "list": [
       {
-        "allValue": ".*",
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "",
+          "value": ""
         },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "definition": "label_values(kie_cluster_images_running, name)",
         "description": "The image name",
         "hide": 0,
-        "includeAll": true,
-        "label": "",
-        "multi": true,
+        "label": "Image name",
         "name": "image",
-        "options": [],
-        "query": {
-          "qryType": 5,
-          "query": "label_values(kie_cluster_images_running, name)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
         "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
+        "type": "textbox"
       }
     ]
   },
