@@ -6,6 +6,8 @@ on: # yamllint disable-line rule:truthy
     paths:
     - ".github/workflows/lint.helm.yml"
     - "charts/**"
+  push:
+    branches: [main]
 
 jobs:
   chart_testing:

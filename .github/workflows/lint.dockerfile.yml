@@ -6,6 +6,8 @@ on: # yamllint disable-line rule:truthy
     paths:
     - ".github/workflows/lint.container.yml"
     - "Dockerfile"
+  push:
+    branches: [main]
 
 jobs:
   hadolint:
