@@ -10,18 +10,21 @@ var runningImagesGauge = promauto.NewGaugeVec(
 		Namespace: "kie",
 		Subsystem: "cluster",
 		Name:      "images_running",
-		Help:      "k8s cluster running images",
+		Help:      "Gauge counting images running on cluster",
 	},
-	[]string{"name", "tag", "digest", "pod"},
+	[]string{"name", "tag", "digest"},
 )
 
-func UpdateRunningImagesGauge(name, tag, digest, pod string) {
+func UpdateRunningImagesGauge(fullyQualifiedName, tag, digest string, count int) {
 	runningImagesGauge.With(
 		prometheus.Labels{
-			"name":   name,
+			"name":   fullyQualifiedName,
 			"tag":    tag,
 			"digest": digest,
-			"pod":    pod,
 		},
-	).Set(1)
+	).Set(float64(count))
+}
+
+func ResetRunningImagesGauge() {
+	runningImagesGauge.Reset()
 }

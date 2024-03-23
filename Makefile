@@ -18,13 +18,18 @@ artifact: ## Generate binary in dist folder
 ## ----------------------
 ##
 
-qa: lint lint.yaml lint.chart test ## Run all QA process
+qa: lint test ## Run all QA process
 
-lint: ## Lint source code
+lint: lint.go lint.yaml lint.hadolint lint.chart ## Run all linters
+
+lint.go: ## Lint go source code
 	@golangci-lint run -v
 
 lint.yaml: ## Lint yaml file
 	@yamllint .
+
+lint.hadolint: ## Lint dockerfiles
+	hadolint -- Dockerfile
 
 lint.chart: ## Lint Helm chart
 	ct lint --charts=./charts/kubernetes-image-exporter/
@@ -55,7 +60,7 @@ export KUBECONFIG := test/local/kubeconfig.yml
 export HELM_CONFIG_HOME := test/local/helm
 
 start: ## Start project locally
-	go run ./cmd/kubernetes-image-exporter serve -l debug
+	go run ./cmd/kubernetes-image-exporter serve -l debug -k test/local/kubeconfig.yml
 
 kind.create: ## Create Kind dev cluster
 	kind create cluster --config=.kind.yaml
@@ -86,3 +91,9 @@ app.deploy: ## Deploy app on Kind dev cluster
 		--values test/local/helm/kie_local/value.yml \
 		--debug \
 		--wait
+
+app.build:
+	docker build -t kie:dev .
+	trivy image --format spdx-json --output kie.spdx.json kie:dev
+	trivy image --format cyclonedx --output kie.cyclonedx.json kie:dev
+	trivy image --output kie.trivy.json kie:dev

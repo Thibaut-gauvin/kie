@@ -2,7 +2,6 @@ package kie
 
 import (
 	"context"
-	"regexp"
 
 	internalHandlers "github.com/Thibaut-gauvin/kie/internal/handlers"
 	"github.com/Thibaut-gauvin/kie/internal/logger"
@@ -11,16 +10,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
-
-var rxFrom = regexp.MustCompile(`^(?P<ref>(?P<image>[^:@\s]+):?(?P<tag>[^\s@]+)?@?(?P<digest>sha256:.*)?)$`)
-
-type RunningImage struct {
-	name   string
-	tag    string
-	digest string
-	pod    string
-}
-type RunningImages []RunningImage
 
 // scrapClusterImages is the function called by cron scheduler that is responsible to refresh prometheus metrics.
 func scrapClusterImages(k8sClient kubernetes.Clientset) error {
@@ -32,55 +21,32 @@ func scrapClusterImages(k8sClient kubernetes.Clientset) error {
 		return err
 	}
 
-	var images RunningImages
+	var containers []corev1.Container
 	for _, pod := range pods.Items {
-		for _, container := range pod.Spec.Containers {
-			images = append(images, parseImageName(container, pod))
-		}
-		for _, container := range pod.Spec.InitContainers {
-			images = append(images, parseImageName(container, pod))
+		containers = append(containers, pod.Spec.InitContainers...)
+		containers = append(containers, pod.Spec.Containers...)
+	}
+
+	images := make(map[string]RunningImage)
+	for _, container := range containers {
+		image := parseContainerImage(container)
+
+		_, isPresent := images[image.FullyQualifiedName]
+		if isPresent {
+			localImage := images[image.FullyQualifiedName]
+			localImage.count++
+			images[image.FullyQualifiedName] = localImage
+		} else {
+			images[image.FullyQualifiedName] = image
 		}
 	}
 
+	metrics.ResetRunningImagesGauge()
 	for _, image := range images {
-		metrics.UpdateRunningImagesGauge(
-			image.name,
-			image.tag,
-			image.digest,
-			image.pod,
-		)
-		logger.Debugf("image: %s, tag: %s, digest: %s, pod: %s",
-			image.name,
-			image.tag,
-			image.digest,
-			image.pod,
-		)
+		logger.Debugf("image: %s -> %d", image.FullyQualifiedName, image.count)
+		metrics.UpdateRunningImagesGauge(image.FullyQualifiedName, image.Tag, image.Digest, image.count)
 	}
 
 	internalHandlers.UpdateHealthy(true)
 	return nil
-}
-
-func parseImageName(container corev1.Container, pod corev1.Pod) RunningImage {
-	runningImage := RunningImage{
-		name: container.Image,
-		pod:  pod.Name,
-	}
-	if !rxFrom.MatchString(container.Image) {
-		return runningImage
-	}
-
-	match := rxFrom.FindStringSubmatch(container.Image)
-	result := make(map[string]string)
-	for i, name := range rxFrom.SubexpNames() {
-		if i != 0 && name != "" {
-			result[name] = match[i]
-		}
-	}
-
-	runningImage.name = result["image"]
-	runningImage.tag = result["tag"]
-	runningImage.digest = result["digest"]
-
-	return runningImage
 }
