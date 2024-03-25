@@ -1,6 +1,36 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:best-practices",
+    "regexManagers:dockerfileVersions",
+    "regexManagers:helmChartYamlAppVersions",
+    ":combinePatchMinorReleases",
+    ":enableVulnerabilityAlerts",
+    ":gitSignOff",
+    ":ignoreUnstable",
+    ":label(dependencies)",
+    ":prImmediately",
+    ":renovatePrefix",
+    ":semanticPrefixChore",
+    ":semanticCommitScope(deps)",
+    ":separateMultipleMajorReleases"
+  ],
+  "timezone": "Europe/Paris",
+  "postUpdateOptions": [
+    "gomodUpdateImportPaths",
+    "gomodTidy"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "parse updates of tools in github-action with annotations",
+      "fileMatch": [
+        "^\\.github/workflows/.*\\.ya?ml"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?)(?: depName=(?<depName>.*?))?(?: versioning=(?<versioning>.*?))?\\s.*version: ['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
+    }
   ]
 }
