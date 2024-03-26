@@ -3,7 +3,7 @@ module github.com/Thibaut-gauvin/kie
 go 1.21.0
 
 require (
-	github.com/go-co-op/gocron/v2 v2.2.6
+	github.com/go-co-op/gocron/v2 v2.2.9
 	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/prometheus/client_golang v1.19.0
