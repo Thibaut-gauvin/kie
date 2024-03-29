@@ -5,6 +5,7 @@ on: # yamllint disable-line rule:truthy
     types: [opened, synchronize]
     paths:
     - ".github/workflows/test.golang.yml"
+    - ".github/workflows/lint.golang.yml"
     - "**.go"
     - "go.*"
   push:
