@@ -48,7 +48,6 @@ func Test_validateListenPort(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			err := validateListenPort(test.input)
@@ -90,7 +89,6 @@ func Test_validateKubeconfigPath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			err := validateKubeconfigPath(test.input)
@@ -138,7 +136,6 @@ func Test_validateRefreshInterval(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			err := validateRefreshInterval(test.input)
