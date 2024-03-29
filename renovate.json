@@ -32,7 +32,7 @@
     },
     {
       "description": "Group golang version bumps by datasource",
-      "datasources": [
+      "matchDatasources": [
         "golang-version"
       ],
       "groupName": "golang"
