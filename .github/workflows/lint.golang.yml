@@ -6,6 +6,7 @@ on: # yamllint disable-line rule:truthy
     paths:
     - ".github/workflows/lint.golang.yml"
     - "**.go"
+    - "go.*"
   push:
     branches: [main]
 
