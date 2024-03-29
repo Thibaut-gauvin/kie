@@ -20,6 +20,33 @@
     "gomodUpdateImportPaths",
     "gomodTidy"
   ],
+  "packageRules": [
+    {
+      "description": "Update digest once a month",
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "extends": [
+        "schedule:monthly"
+      ]
+    },
+    {
+      "description": "Group golang version bumps by datasource",
+      "datasources": [
+        "golang-version"
+      ],
+      "groupName": "golang"
+    },
+    {
+      "description": "Group golang version bumps by package",
+      "matchPackageNames": [
+        "go",
+        "golang",
+        "golang/go"
+      ],
+      "groupName": "golang"
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",
