@@ -4,8 +4,8 @@ name: kie
 description: A Helm chart for Kubernetes Images Exporter (KIE)
 
 type: application
-version: 1.0.1
-appVersion: v0.0.1
+version: 1.0.2
+appVersion: v0.0.2
 
 home: https://github.com/Thibaut-gauvin/kie
 sources:
