@@ -2,8 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
-    "regexManagers:dockerfileVersions",
-    "regexManagers:helmChartYamlAppVersions",
+    "customManagers:dockerfileVersions",
+    "customManagers:helmChartYamlAppVersions",
     ":combinePatchMinorReleases",
     ":enableVulnerabilityAlerts",
     ":gitSignOff",
