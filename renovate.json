@@ -51,8 +51,8 @@
     {
       "customType": "regex",
       "description": "parse updates of tools in github-action with annotations",
-      "fileMatch": [
-        "^\\.github/workflows/.*\\.ya?ml"
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.*\\.ya?ml/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?)(?: depName=(?<depName>.*?))?(?: versioning=(?<versioning>.*?))?\\s.*version: ['\"]?(?<currentValue>[^'\"\\s]+)['\"]?\\s"
