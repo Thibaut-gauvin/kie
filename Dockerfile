@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.22.2@sha256:c4fb952e712efd8f787bcd8e53fd66d1d83b7dc26adabc218e9eac1dbf776bdf as builder
+FROM docker.io/golang:1.24.3@sha256:baf611fd7d082c08acbf365005971f201017d34ca2e80e6f3415577f82c44af2 as builder
 ARG VERSION="devel"
 
 WORKDIR /build
